@@ -9,6 +9,8 @@ const db = new ListingsDB();
 
 const HTTP_PORT = process.env.PORT || 8080;
 
+console.log(process.env.MONGODB_CONN_STRING); // Check if the connection string is printed
+
 app.use(cors());
 app.use(express.json());
 
