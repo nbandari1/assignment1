@@ -2,22 +2,25 @@ const express = require('express');
 const app = express();
 
 const cors = require("cors");
-require('dotenv').config();
-
 const ListingsDB = require("./modules/listingsDB.js");
-const db = new ListingsDB();
 
 const HTTP_PORT = process.env.PORT || 8080;
-
-console.log(process.env.MONGODB_CONN_STRING); // Check if the connection string is printed
 
 app.use(cors());
 app.use(express.json());
 
+// Include the MongoDB connection string directly in the server.js file
+const MONGODB_CONN_STRING = "mongodb+srv://nbandari1:zPMWRMrIrBsfRf7F@senecaweb.niwu9tw.mongodb.net/sample_mflix?retryWrites=true&w=majority";
+
+// Create an instance of the ListingsDB class
+const db = new ListingsDB();
+
+// Define routes and handlers
 app.get('/', (req, res) => {
   res.send({message: "API listening"});
 });
 
+// Endpoint to add a new listing
 app.post("/api/listings", async (req, res) => {
   try {
     const listing = await db.addNewListing(req.body);
@@ -27,6 +30,7 @@ app.post("/api/listings", async (req, res) => {
   }
 });
 
+// Endpoint to get all listings
 app.get("/api/listings", async (req, res) => {
   try {
     const { page, perPage, name } = req.query;
@@ -41,6 +45,7 @@ app.get("/api/listings", async (req, res) => {
   }
 });
 
+// Endpoint to get a listing by ID
 app.get("/api/listings/:id", async (req, res) => {
   try {
     const listing = await db.getListingById(req.params.id);
@@ -54,6 +59,7 @@ app.get("/api/listings/:id", async (req, res) => {
   }
 });
 
+// Endpoint to update a listing by ID
 app.put("/api/listings/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -64,6 +70,7 @@ app.put("/api/listings/:id", async (req, res) => {
   }
 });
 
+// Endpoint to delete a listing by ID
 app.delete("/api/listings/:id", async (req, res) => {
   try {
     await db.deleteListingById(req.params.id);
@@ -73,10 +80,13 @@ app.delete("/api/listings/:id", async (req, res) => {
   }
 });
 
-db.initialize(process.env.MONGODB_CONN_STRING).then(()=>{
-  app.listen(HTTP_PORT, ()=>{
-      console.log(`server listening on: ${HTTP_PORT}`);
+// Initialize the database connection and start the server
+db.initialize(MONGODB_CONN_STRING).then(() => {
+  console.log("Connected to MongoDB!");
+  app.listen(HTTP_PORT, () => {
+    console.log(`Server listening on port: ${HTTP_PORT}`);
   });
 }).catch((err) => {
-  console.error(err);
+  console.error("Error initializing database:", err);
 });
+
